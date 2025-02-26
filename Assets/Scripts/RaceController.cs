@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class RaceController : MonoBehaviour
 {
-    public static bool racePending = false;
-    public int laps = 2;
+    public static bool RacePending => racePending;
+    static bool racePending = false;
 
-    public int countDownTimer = 3;
+    [SerializeField] int laps = 2;
+    [SerializeField] int countDownTimer = 3;
+
+    CheckpointController[] controllers;
 
     private void Start()
     {
+        controllers = FindObjectsOfType<CheckpointController>();
         InvokeRepeating(nameof(CountDown), 3, 1);
     }
 
@@ -25,5 +29,21 @@ public class RaceController : MonoBehaviour
             return;
         }
         countDownTimer--;
+    }
+
+    private void Update()
+    {
+        int finishers = 0;
+        foreach(var c in controllers)
+        {
+            if(c.Lap == laps + 1)
+                finishers++;
+        }
+
+        if (finishers >= controllers.Length)
+        {
+            Debug.Log("Race finished");
+            racePending = false;
+        }
     }
 }

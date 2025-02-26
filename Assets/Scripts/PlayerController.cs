@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!RaceController.racePending) return;
+        if (!RaceController.RacePending) return;
 
         float accel = Input.GetAxis("Vertical");
         float steer = Input.GetAxis("Horizontal");
