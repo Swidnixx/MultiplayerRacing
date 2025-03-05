@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DriveSupportScript : MonoBehaviour
 {
+    CheckpointController ckpController;
     Rigidbody rb;
 
     float notOk;
@@ -11,6 +12,7 @@ public class DriveSupportScript : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        ckpController = GetComponent<CheckpointController>();
     }
 
     private void Update()
@@ -25,8 +27,10 @@ public class DriveSupportScript : MonoBehaviour
 
     void TurnCarBack()
     {
-        transform.position += Vector3.up;
-        transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+        //transform.position += Vector3.up;
+        transform.position = ckpController.LastCheckpoint.position;
+        //transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+        transform.rotation = ckpController.LastCheckpoint.rotation;
         rb.angularVelocity = Vector3.zero;
     }
 }
