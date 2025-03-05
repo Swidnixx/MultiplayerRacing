@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class DriveSupportScript : MonoBehaviour
 {
+    CheckpointController ckpController;
     Rigidbody rb;
 
     float notOk;
@@ -11,11 +12,22 @@ public class DriveSupportScript : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
+        ckpController = GetComponent<CheckpointController>();
+    }
+
+    bool CheckIfNotOk()
+    {
+        return 
+            transform.up.y < 0.38765f
+            || 
+            rb.velocity.magnitude < 0.0012f;
     }
 
     private void Update()
     {
-        if (transform.up.y < 0.38765f)
+        if (!RaceController.RacePending) return;
+
+        if (CheckIfNotOk())
             notOk += Time.deltaTime;
         else
             notOk = 0;
@@ -25,8 +37,10 @@ public class DriveSupportScript : MonoBehaviour
 
     void TurnCarBack()
     {
-        transform.position += Vector3.up;
-        transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+        //transform.position += Vector3.up;
+        transform.position = ckpController.LastCheckpoint.position;
+        //transform.rotation = Quaternion.LookRotation(transform.forward, Vector3.up);
+        transform.rotation = ckpController.LastCheckpoint.rotation;
         rb.angularVelocity = Vector3.zero;
     }
 }

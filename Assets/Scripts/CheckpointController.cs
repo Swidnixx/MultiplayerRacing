@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CheckpointController : MonoBehaviour
 {
+    public Transform LastCheckpoint => lastCheckpoint;
     public int Lap => lap;
 
     int lap = 0;
@@ -11,9 +12,20 @@ public class CheckpointController : MonoBehaviour
     int checkpointCount;
     int nextCheckpoint = 0;
 
+    Transform lastCheckpoint;
+
     private void Start()
     {
-        checkpointCount = GameObject.FindGameObjectsWithTag("Checkpoint").Length;
+        GameObject[] checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
+        checkpointCount = checkpoints.Length;
+        foreach(var ckp in checkpoints)
+        {
+            if(ckp.name == "0")
+            {
+                lastCheckpoint = ckp.transform;
+                break;
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -24,6 +36,7 @@ public class CheckpointController : MonoBehaviour
             if ( numer == nextCheckpoint )
             {
                 checkpoint = numer;
+                lastCheckpoint = other.transform;
                 nextCheckpoint++;
                 nextCheckpoint = nextCheckpoint % checkpointCount;
 
