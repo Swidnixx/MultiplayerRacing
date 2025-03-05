@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RaceController : MonoBehaviour
 {
@@ -9,21 +11,38 @@ public class RaceController : MonoBehaviour
 
     [SerializeField] int laps = 2;
     [SerializeField] int countDownTimer = 3;
+    [SerializeField] TMP_Text countDownText;
+    [SerializeField] GameObject finishPanel;
+
+    [SerializeField] AudioClip countDownSfx;
+    [SerializeField] AudioClip startSfx;
 
     CheckpointController[] controllers;
+    AudioSource audioSource;
 
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
         controllers = FindObjectsOfType<CheckpointController>();
         InvokeRepeating(nameof(CountDown), 3, 1);
+        countDownText.gameObject.SetActive(false);
+        finishPanel.SetActive(false);
+    }
+    void HideCountdownText()
+    {
+        countDownText.gameObject.SetActive(false);
     }
 
     void CountDown()
-    {        
-        Debug.Log(countDownTimer);
+    {
+        countDownText.gameObject.SetActive(true);
+        countDownText.text = countDownTimer.ToString();
+        audioSource.PlayOneShot(countDownSfx);
         if (countDownTimer < 1)
         {
-            Debug.Log("Start!");
+            countDownText.text = "Start!";
+            audioSource.PlayOneShot(startSfx);
+            Invoke(nameof(HideCountdownText), 1);
             racePending = true;
             CancelInvoke(nameof(CountDown));
             return;
@@ -42,8 +61,13 @@ public class RaceController : MonoBehaviour
 
         if (finishers >= controllers.Length)
         {
-            Debug.Log("Race finished");
+            finishPanel.SetActive(true);
             racePending = false;
         }
+    }
+
+    public void RestartRace()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
