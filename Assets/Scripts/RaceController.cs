@@ -23,10 +23,16 @@ public class RaceController : MonoBehaviour
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        controllers = FindObjectsOfType<CheckpointController>();
-        InvokeRepeating(nameof(CountDown), 3, 1);
         countDownText.gameObject.SetActive(false);
         finishPanel.SetActive(false);
+
+    }
+
+    void StartRace()
+    {
+        controllers = FindObjectsOfType<CheckpointController>();
+        InvokeRepeating(nameof(CountDown), 3, 1);
+     
     }
     void HideCountdownText()
     {
