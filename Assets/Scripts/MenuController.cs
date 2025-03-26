@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -13,6 +14,8 @@ public class MenuController : MonoBehaviour
 
     private void Start()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
+
         playerName.text = PlayerPrefs.GetString("PlayerName");
 
         r.value = PlayerPrefs.GetFloat("R");

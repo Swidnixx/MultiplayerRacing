@@ -1,10 +1,11 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class RaceController : MonoBehaviour
+public class RaceController : MonoBehaviourPunCallbacks
 {
     public static bool RacePending => racePending;
     static bool racePending = false;
@@ -14,11 +15,17 @@ public class RaceController : MonoBehaviour
     [SerializeField] TMP_Text countDownText;
     [SerializeField] GameObject finishPanel;
 
+    [SerializeField] GameObject waitingText;
+    [SerializeField] GameObject startButton;
+
     [SerializeField] AudioClip countDownSfx;
     [SerializeField] AudioClip startSfx;
 
     CheckpointController[] controllers;
     AudioSource audioSource;
+
+    [SerializeField] GameObject carPrefab;
+    [SerializeField] Transform[] spawnPos;
 
     private void Start()
     {
@@ -26,14 +33,49 @@ public class RaceController : MonoBehaviour
         countDownText.gameObject.SetActive(false);
         finishPanel.SetActive(false);
 
+        waitingText.SetActive(false);
+        startButton.SetActive(false);
+
+        //spawnowanie
+        object[] instanceData = new object[4];
+        instanceData[0] = PlayerPrefs.GetString("PlayerName");
+        instanceData[1] = PlayerPrefs.GetFloat("R");
+        instanceData[2] = PlayerPrefs.GetFloat("G");
+        instanceData[3] = PlayerPrefs.GetFloat("B");
+
+        int playerNumber = PhotonNetwork.CurrentRoom.PlayerCount - 1;
+        Vector3 startPos = spawnPos[playerNumber].position;
+        Quaternion startRot = spawnPos[playerNumber].rotation;
+        GameObject playerCar = PhotonNetwork.Instantiate(carPrefab.name, startPos, startRot, 0, instanceData);
+
+        playerCar.GetComponent<CarAppearance>().SetLocalPlayer();
+        playerCar.GetComponent<PlayerController>().enabled = true;
+
+        if(PhotonNetwork.IsMasterClient)
+        {
+            startButton.SetActive(true);
+        }
+        else
+        {
+            waitingText.SetActive(true);
+        }
     }
 
-    void StartRace()
+    public void StartRace()
+    {
+        photonView.RPC(nameof(StartRaceRPC), RpcTarget.All, null);
+    }
+
+    [PunRPC]
+    public void StartRaceRPC()
     {
         controllers = FindObjectsOfType<CheckpointController>();
         InvokeRepeating(nameof(CountDown), 3, 1);
-     
+
+        startButton.SetActive(false);
+        waitingText.SetActive(false);
     }
+
     void HideCountdownText()
     {
         countDownText.gameObject.SetActive(false);
@@ -58,6 +100,8 @@ public class RaceController : MonoBehaviour
 
     private void Update()
     {
+        if (!racePending) return;
+
         int finishers = 0;
         foreach(var c in controllers)
         {
