@@ -366,6 +366,7 @@ MonoBehaviour:
   carColor: {r: 0.8039216, g: 1, b: 0.4392157, a: 1}
   nameText: {fileID: 7941404306578933311}
   carRenderer: {fileID: 5649414871910412914}
+  checkPoint: {fileID: 7309193617846741727}
 --- !u!114 &3353804517156257652
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -593,6 +594,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9836d0957d523b845817e59d9387e95b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lap: 0
+  checkpoint: -1
 --- !u!114 &3167793400326222338
 MonoBehaviour:
   m_ObjectHideFlags: 0
