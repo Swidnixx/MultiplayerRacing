@@ -38,7 +38,7 @@ public class RaceController : MonoBehaviourPunCallbacks
 
         //spawnowanie
         object[] instanceData = new object[4];
-        instanceData[0] = PlayerPrefs.GetString("PlayerName");
+        instanceData[0] = "";
         instanceData[1] = PlayerPrefs.GetFloat("R");
         instanceData[2] = PlayerPrefs.GetFloat("G");
         instanceData[3] = PlayerPrefs.GetFloat("B");

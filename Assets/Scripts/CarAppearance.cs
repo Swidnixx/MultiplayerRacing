@@ -10,6 +10,11 @@ public class CarAppearance : MonoBehaviour
     [SerializeField] TMP_Text nameText;
     [SerializeField] MeshRenderer carRenderer;
 
+    // Do dostosowania przez prowadz¹cego do twojej koncepcji projektu :-)
+    int carRego;
+    bool regoSet = false;
+    public CheckpointController checkPoint;
+
     public void SetNameAndColor(string name, Color color)
     {
         playerName = name;
@@ -31,5 +36,17 @@ public class CarAppearance : MonoBehaviour
         SetNameAndColor(name, color);
 
         FindObjectOfType<CameraController>().SetCamera(GetComponentInChildren<Rigidbody>().transform);
+    }
+
+    private void LateUpdate()
+    {
+        if (!regoSet)
+        {
+            carRego = Leaderboard.RegisterCar(playerName);
+            regoSet = true;
+            return;
+        }
+
+        Leaderboard.SetPosition(carRego, checkPoint.lap, checkPoint.checkpoint);
     }
 }

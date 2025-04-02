@@ -7,8 +7,9 @@ public class CheckpointController : MonoBehaviour
     public Transform LastCheckpoint => lastCheckpoint;
     public int Lap => lap;
 
-    int lap = 0;
-    int checkpoint = -1;
+    public int lap = 0;
+    public int checkpoint = -1;
+
     int checkpointCount;
     int nextCheckpoint = 0;
 
