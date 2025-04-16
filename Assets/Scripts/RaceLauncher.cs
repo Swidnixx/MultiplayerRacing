@@ -4,8 +4,13 @@ using UnityEngine.SceneManagement;
 
 public class RaceLauncher : MonoBehaviourPunCallbacks
 {
+    bool connecting;
+
     public void JoinRace()
     {
+        if (connecting) return;
+        connecting = true;
+
         if(PhotonNetwork.IsConnected)
         {
             PhotonNetwork.JoinRandomRoom(); //do³¹cz do pokoju
@@ -31,6 +36,6 @@ public class RaceLauncher : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         //SceneManager.LoadScene("Race");
-        PhotonNetwork.LoadLevel("Race");
+        PhotonNetwork.LoadLevel("SampleScene");
     }
 }

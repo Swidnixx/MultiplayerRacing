@@ -10,6 +10,12 @@ public class DrivingScript : MonoBehaviour
     [SerializeField] float maxSteerAngle = 30;
     [SerializeField] float maxBrakeTorque = 750;
 
+    Rigidbody rb; 
+    private void Start()
+    {
+        rb = GetComponentInChildren<Rigidbody>();
+    }
+
     public void Drive(float accel, float steer, float brake)
     {
         float thrustTorque = accel * maxThrustTorque;
@@ -26,5 +32,12 @@ public class DrivingScript : MonoBehaviour
             w.Wh.motorTorque = thrustTorque;
             w.Wh.brakeTorque = brake;
         }
+    }
+
+    internal void Stop()
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        Drive(0, 0, 1);
     }
 }

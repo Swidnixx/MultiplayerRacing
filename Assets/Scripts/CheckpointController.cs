@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -43,6 +44,23 @@ public class CheckpointController : MonoBehaviour
 
                 if (checkpoint == 0)
                     lap++;
+            }
+        }
+    }
+
+    internal void Restart()
+    {
+        lap = 0;
+        checkpoint = -1;
+        nextCheckpoint = 0;
+        GameObject[] checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
+        checkpointCount = checkpoints.Length;
+        foreach (var ckp in checkpoints)
+        {
+            if (ckp.name == "0")
+            {
+                lastCheckpoint = ckp.transform;
+                break;
             }
         }
     }

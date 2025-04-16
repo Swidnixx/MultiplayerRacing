@@ -10,7 +10,7 @@ public class RaceController : MonoBehaviourPunCallbacks
     public static bool RacePending => racePending;
     static bool racePending = false;
 
-    [SerializeField] int laps = 2;
+    [SerializeField] int laps = 1;
     [SerializeField] int countDownTimer = 3;
     [SerializeField] TMP_Text countDownText;
     [SerializeField] GameObject finishPanel;
@@ -27,6 +27,7 @@ public class RaceController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject carPrefab;
     [SerializeField] Transform[] spawnPos;
 
+    int playerNumber;
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -43,7 +44,7 @@ public class RaceController : MonoBehaviourPunCallbacks
         instanceData[2] = PlayerPrefs.GetFloat("G");
         instanceData[3] = PlayerPrefs.GetFloat("B");
 
-        int playerNumber = PhotonNetwork.CurrentRoom.PlayerCount - 1;
+        playerNumber = PhotonNetwork.CurrentRoom.PlayerCount - 1;
         Vector3 startPos = spawnPos[playerNumber].position;
         Quaternion startRot = spawnPos[playerNumber].rotation;
         GameObject playerCar = PhotonNetwork.Instantiate(carPrefab.name, startPos, startRot, 0, instanceData);
@@ -63,6 +64,7 @@ public class RaceController : MonoBehaviourPunCallbacks
 
     public void StartRace()
     {
+        PhotonNetwork.CurrentRoom.IsOpen = false;
         photonView.RPC(nameof(StartRaceRPC), RpcTarget.All, null);
     }
 
@@ -74,6 +76,37 @@ public class RaceController : MonoBehaviourPunCallbacks
 
         startButton.SetActive(false);
         waitingText.SetActive(false);
+    }
+
+    public void RestartRace()
+    {
+        photonView.RPC(nameof(RestartRPC), RpcTarget.All, null);
+    }
+    [PunRPC]
+    void RestartRPC()
+    {
+        countDownTimer = 3;
+
+        Transform car = OnlinePlayer.LocalPlayerInstance.transform.GetChild(0);
+        car.position = spawnPos[playerNumber].position;
+        car.rotation = spawnPos[playerNumber].rotation;
+
+        car.parent.GetComponent<DrivingScript>().Stop();
+
+        foreach(var c in controllers)
+        {
+            c.Restart();
+        }
+
+        finishPanel.SetActive(false);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            startButton.SetActive(true);
+        }
+        else
+        {
+            waitingText.SetActive(true);
+        }
     }
 
     void HideCountdownText()
@@ -105,7 +138,7 @@ public class RaceController : MonoBehaviourPunCallbacks
         int finishers = 0;
         foreach(var c in controllers)
         {
-            if(c.Lap == laps + 1)
+            if(c.Lap >= laps + 1)
                 finishers++;
         }
 
@@ -114,10 +147,5 @@ public class RaceController : MonoBehaviourPunCallbacks
             finishPanel.SetActive(true);
             racePending = false;
         }
-    }
-
-    public void RestartRace()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
