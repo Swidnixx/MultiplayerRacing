@@ -38,12 +38,24 @@ public class CarAppearance : MonoBehaviour
         FindObjectOfType<CameraController>().SetCamera(GetComponentInChildren<Rigidbody>().transform);
     }
 
+    public int CarRego
+    {
+        get
+        {
+            return carRego;
+        }
+        set
+        {
+            carRego = value;
+            Leaderboard.RegisterCar(carRego, playerName);
+            regoSet = true;
+        }
+    }
     private void LateUpdate()
     {
         if (!regoSet)
         {
-            carRego = Leaderboard.RegisterCar(playerName);
-            regoSet = true;
+
             return;
         }
 

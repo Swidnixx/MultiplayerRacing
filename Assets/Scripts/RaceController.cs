@@ -1,6 +1,9 @@
 using Photon.Pun;
+using Photon.Realtime;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -27,31 +30,44 @@ public class RaceController : MonoBehaviourPunCallbacks
     [SerializeField] GameObject carPrefab;
     [SerializeField] Transform[] spawnPos;
 
+    List<int> slots= new List<int>() { 0,1,2,3};
+
     int playerNumber;
     private void Start()
     {
         audioSource = GetComponent<AudioSource>();
         countDownText.gameObject.SetActive(false);
-        finishPanel.SetActive(false);
 
-        waitingText.SetActive(false);
-        startButton.SetActive(false);
+        Invoke(nameof(SpawnPlayer), 0.25f);
 
+        PrepareUI();
+    }
+
+    void SpawnPlayer()
+    {        
+        playerNumber = slots[0];
         //spawnowanie
-        object[] instanceData = new object[4];
+        object[] instanceData = new object[5];
         instanceData[0] = PlayerPrefs.GetString("PlayerName");
         instanceData[1] = PlayerPrefs.GetFloat("R");
         instanceData[2] = PlayerPrefs.GetFloat("G");
         instanceData[3] = PlayerPrefs.GetFloat("B");
+        instanceData[4] = playerNumber;
 
-        playerNumber = PhotonNetwork.CurrentRoom.PlayerCount - 1;
         Vector3 startPos = spawnPos[playerNumber].position;
         Quaternion startRot = spawnPos[playerNumber].rotation;
         GameObject playerCar = PhotonNetwork.Instantiate(carPrefab.name, startPos, startRot, 0, instanceData);
 
-        playerCar.GetComponent<CarAppearance>().SetLocalPlayer();
-        playerCar.GetComponent<PlayerController>().enabled = true;
 
+        playerCar.GetComponent<PlayerController>().enabled = true;
+    }
+
+    void PrepareUI()
+    {
+        finishPanel.SetActive(false);
+
+        waitingText.SetActive(false);
+        startButton.SetActive(false);
         if(PhotonNetwork.IsMasterClient)
         {
             startButton.SetActive(true);
@@ -80,6 +96,7 @@ public class RaceController : MonoBehaviourPunCallbacks
 
     public void RestartRace()
     {
+        PhotonNetwork.CurrentRoom.IsOpen = true;
         photonView.RPC(nameof(RestartRPC), RpcTarget.All, null);
     }
     [PunRPC]
@@ -98,15 +115,7 @@ public class RaceController : MonoBehaviourPunCallbacks
             c.Restart();
         }
 
-        finishPanel.SetActive(false);
-        if (PhotonNetwork.IsMasterClient)
-        {
-            startButton.SetActive(true);
-        }
-        else
-        {
-            waitingText.SetActive(true);
-        }
+        PrepareUI();
     }
 
     void HideCountdownText()
@@ -147,5 +156,34 @@ public class RaceController : MonoBehaviourPunCallbacks
             finishPanel.SetActive(true);
             racePending = false;
         }
+    }
+
+    public override void OnMasterClientSwitched(Player newMasterClient)
+    {
+        base.OnMasterClientSwitched(newMasterClient);
+
+        if (racePending) return;
+
+        PrepareUI();
+    }
+
+    Dictionary<Player, OnlinePlayer> players = new Dictionary<Player, OnlinePlayer>();
+    public void Register(Player player, OnlinePlayer car)
+    {
+        players[player] = car;
+        slots.Remove(car.Number);
+    }
+
+    public override void OnPlayerLeftRoom(Player player)
+    {
+        base.OnPlayerLeftRoom(player);
+
+        OnlinePlayer car = players[player];
+        Debug.Log($"{player} left, number {car.Number}");
+
+        slots.Add(car.Number);
+        players.Remove(player);
+
+        Leaderboard.DropPlayer(car.Number);
     }
 }

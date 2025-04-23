@@ -18,19 +18,19 @@ public struct Car
 public class Leaderboard
 {
     static Dictionary<int, Car> board = new Dictionary<int, Car>();
-    static int carsRegistered = -1;
 
     public static void Reset()
     {
         board.Clear();
-        carsRegistered = -1;
     }
 
-    public static int RegisterCar(string name)
+    public static void RegisterCar(int number, string name)
     {
-        carsRegistered++;
-        board.Add(carsRegistered, new Car(name, 0));
-        return carsRegistered;
+        board.Add(number, new Car(name, 0));
+    }
+    public static void DropPlayer(int number)
+    {
+        board.Remove(number);
     }
 
     public static void SetPosition(int rego, int lap, int checkPoint)

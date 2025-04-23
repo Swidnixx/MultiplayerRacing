@@ -7,11 +7,14 @@ public class OnlinePlayer : MonoBehaviourPunCallbacks
 {
     public static GameObject LocalPlayerInstance;
 
+    public int Number { get; private set; }
+
     private void Awake()
     {
         if (photonView.IsMine)
         {
-            LocalPlayerInstance = gameObject; 
+            LocalPlayerInstance = gameObject;
+            GetComponent<CarAppearance>().SetLocalPlayer();
         }
         else
         {
@@ -23,5 +26,11 @@ public class OnlinePlayer : MonoBehaviourPunCallbacks
                 );
             GetComponent<CarAppearance>().SetNameAndColor(name, color);
         }
+
+        Number = (int)photonView.InstantiationData[4];
+        RaceController rc = FindObjectOfType<RaceController>();
+        rc.Register(photonView.Owner, this);
+
+        GetComponent<CarAppearance>().CarRego = Number;
     }
 }
