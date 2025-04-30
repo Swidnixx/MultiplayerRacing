@@ -11,7 +11,7 @@ public class DrivingScript : MonoBehaviour
     [SerializeField] float maxBrakeTorque = 750;
 
     Rigidbody rb; 
-    private void Start()
+    private void Awake()
     {
         rb = GetComponentInChildren<Rigidbody>();
     }

@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -58,8 +59,8 @@ public class RaceController : MonoBehaviourPunCallbacks
         Quaternion startRot = spawnPos[playerNumber].rotation;
         GameObject playerCar = PhotonNetwork.Instantiate(carPrefab.name, startPos, startRot, 0, instanceData);
 
-
         playerCar.GetComponent<PlayerController>().enabled = true;
+        playerCar.GetComponent<DrivingScript>().Stop();
     }
 
     void PrepareUI()

@@ -35,7 +35,6 @@ public class RaceLauncher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        //SceneManager.LoadScene("Race");
-        PhotonNetwork.LoadLevel("SampleScene");
+        PhotonNetwork.LoadLevel("Race");
     }
 }
